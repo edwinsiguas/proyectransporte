@@ -32,7 +32,7 @@ export function AdminDashboard() {
         <nav className="space-y-2 p-4">
           <button className="flex w-full items-center gap-3 rounded-xl bg-white/10 px-4 py-3 text-sm font-semibold text-white">
             <LayoutDashboard className="h-4 w-4" />
-            Dashboard
+            Dashboard Menu
           </button>
           <button className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-slate-300 hover:bg-white/5">
             <Building2 className="h-4 w-4" />
