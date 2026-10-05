@@ -3,8 +3,12 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useNavigate } from 'react-router-dom'
-import { Loader2, ShieldCheck } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { toast } from 'sonner'
 import { useAuth } from '@/hooks/useAuth'
+import { Loader2, ShieldCheck } from 'lucide-react'
 
 const loginSchema = z.object({
   email: z.string().trim().email('Email inválido'),
@@ -17,33 +21,42 @@ export function LoginPage() {
   const navigate = useNavigate()
   const { login } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
-  const [errorMessage, setErrorMessage] = useState('')
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: 'admin@marcona.pe',
-      password: 'Admin2024!',
+      email: '',
+      password: '',
     },
   })
 
   async function onSubmit(data: LoginFormData) {
     try {
       setIsLoading(true)
-      setErrorMessage('')
-      await login(data.email, data.password)
-      navigate('/dashboard')
+      const user = await login(data.email, data.password)
+
+      toast.success('¡Bienvenido al sistema!')
+
+      if (user.role === 'admin') {
+        navigate('/dashboard')
+      } else {
+        navigate('/empresa')
+      }
     } catch (error: any) {
-      setErrorMessage(error?.message || 'Credenciales incorrectas')
+      const message = error.response?.data?.message || 'Credenciales incorrectas'
+      toast.error(message)
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen flex w-full bg-white">
+    <div className="min-h-screen flex w-full bg-white animate-in fade-in duration-700">
+
+      {}
       <div className="hidden lg:flex lg:w-1/2 bg-[#0A2342] flex-col justify-between p-12 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10 pointer-events-none">
+        {}
+        <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
           <svg className="absolute inset-0 h-full w-full" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <pattern id="grid-pattern" width="40" height="40" patternUnits="userSpaceOnUse">
@@ -52,6 +65,12 @@ export function LoginPage() {
             </defs>
             <rect width="100%" height="100%" fill="url(#grid-pattern)" />
           </svg>
+          {}
+          <div className="absolute top-1/4 right-0 w-96 h-96 bg-blue-500 rounded-full blur-[120px] opacity-30 mix-blend-screen"></div>
+          <div className="absolute bottom-0 left-1/4 w-72 h-72 bg-emerald-500 rounded-full blur-[100px] opacity-20 mix-blend-screen"></div>
+        </div>
+
+        <div className="relative z-10">
         </div>
 
         <div className="relative z-10 max-w-lg mb-12">
@@ -70,7 +89,10 @@ export function LoginPage() {
         </div>
       </div>
 
+      {}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 relative bg-white">
+
+        {}
         <div className="lg:hidden absolute top-8 left-8 flex items-center gap-3">
           <img src="/Marcona_Escudo.png" alt="Escudo Marcona" className="w-10 h-10 object-contain drop-shadow-sm" />
           <div className="flex flex-col">
@@ -87,53 +109,42 @@ export function LoginPage() {
             </p>
           </div>
 
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Correo Electrónico</label>
-              <input
-                type="email"
-                placeholder="Correo corporativo"
-                className="h-14 w-full rounded-xl bg-slate-50 border border-slate-200 px-4 text-base transition-colors focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0A2342]/20"
-                {...form.register('email')}
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs font-bold text-slate-700 uppercase tracking-wider">Correo Electrónico</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Correo corporativo" type="email" className="h-14 rounded-xl bg-slate-50 border-slate-200 focus:bg-white text-base transition-colors" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              {form.formState.errors.email && (
-                <p className="text-sm text-red-600">{form.formState.errors.email.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Contraseña</label>
-              <input
-                type="password"
-                placeholder="••••••••"
-                className="h-14 w-full rounded-xl bg-slate-50 border border-slate-200 px-4 text-base transition-colors focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0A2342]/20 font-mono tracking-widest"
-                {...form.register('password')}
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs font-bold text-slate-700 uppercase tracking-wider">Contraseña</FormLabel>
+                    <FormControl>
+                      <Input placeholder="••••••••" type="password" className="h-14 rounded-xl bg-slate-50 border-slate-200 focus:bg-white text-base transition-colors font-mono tracking-widest" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              {form.formState.errors.password && (
-                <p className="text-sm text-red-600">{form.formState.errors.password.message}</p>
-              )}
-            </div>
 
-            {errorMessage && (
-              <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-                {errorMessage}
-              </div>
-            )}
+              <Button type="submit" className="w-full bg-[#0A2342] hover:bg-[#0A2342]/90 text-white h-14 rounded-xl text-base font-bold shadow-md shadow-[#0A2342]/20 mt-2" disabled={isLoading}>
+                {isLoading && <Loader2 className="mr-3 h-5 w-5 animate-spin text-white" />}
+                Ingresar al Sistema
+              </Button>
+            </form>
+          </Form>
 
-            <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
-              Usuario demo: admin@marcona.pe <br />
-              Contraseña: Admin2024!
-            </div>
-
-            <button
-              type="submit"
-              className="w-full bg-[#0A2342] hover:bg-[#0A2342]/90 text-white h-14 rounded-xl text-base font-bold shadow-md shadow-[#0A2342]/20 mt-2 disabled:opacity-60"
-              disabled={isLoading}
-            >
-              {isLoading && <Loader2 className="mr-3 h-5 w-5 animate-spin text-white inline" />}
-              Ingresar al Sistema
-            </button>
-          </form>
         </div>
       </div>
     </div>
